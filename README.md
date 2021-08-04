@@ -8,6 +8,9 @@ Hopefully will have more options (such as dashboard) soon.
 Usage:
 
 clone repo
+
 cd to repo
+
 run `npm install -g`
+
 now you can run `parse-cli` in a new directory.
