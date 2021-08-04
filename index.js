@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const clear = require("clear");
-const { askLocationDetails, packageManager, generateRandomKeys, installDB, showJSOptions } = require("./lib/inquirer.js");
+const { askLocationDetails, packageManager, generateRandomKeys, installDB, showJSOptions, getInstallOptions } = require("./lib/inquirer.js");
 const { run } = require("./lib/command.js");
 const { spinner, stop } = require("./lib/spinner.js");
 const { makeID } = require("./lib/utils.js");
@@ -52,6 +52,27 @@ console.log(welcome);
     spinner("Installing Dependencies...");
     await run(`rm -rf .git && ${manager} install`);
     stop();
+    const {options} = await getInstallOptions();
+    const removeFile = (file) => run(`rm -rf ${file}`);
+    if (!options.includes('Elastic Beanstalk')) {
+      await Promise.all([
+        removeFile('.ebextensions'),
+        removeFile('.nycrc'),
+        removeFile('app.yaml')
+      ])
+    }
+    if (!options.includes('Heroku')) {
+      await removeFile('app.json');
+    }
+    if (!options.includes('Docker')) {
+      await removeFile('Dockerfile');
+    }
+    if (!options.includes('OpenShift')) {
+      await removeFile('openshift.json');
+    }
+    if (!options.includes('Scalingo')) {
+      await removeFile('scalingo.json');
+    }
     const { keys } = await generateRandomKeys();
     let appId;
     if (keys) {
